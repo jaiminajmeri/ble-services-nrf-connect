@@ -4,7 +4,7 @@ The `nRF Connect` mobile application supports import and export of BLE services.
 However the `.ncs` file is supported by Desktop version. For the mobile version `XML` file is used. One such example is the `Current Time Service` client application with `ble_app_cts_c/cts_central.ncs` file. The `Configure GATT server` in the menu allows to import XML files alone.
 
 **Note:**
-You can export the `Sample configuration` from `Configure GATT server` in the menu and view it a text editor to understand and write one by yourself. I viewed the `cts_central.ncs` file and compared it with the CTS specification to write the XML file.
+You can export the `Sample configuration` from `Configure GATT server` in the menu and view it a text editor to understand and write one by yourself. I viewed the `cts_central.ncs` file and compared it with the [CTS specification](https://www.bluetooth.org/docman/handlers/downloaddoc.ashx?doc_id=292957) to write up the XML file.
 
 ### Following services in XML format are available:
 1. Current Time Service (GATT Server)

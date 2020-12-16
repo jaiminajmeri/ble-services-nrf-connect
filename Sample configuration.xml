@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright (c) 2018, Nordic Semiconductor
+  ~ All rights reserved.
+  ~
+  ~ Redistribution and use in source and binary forms, with or without modification, are permitted provided that the following conditions are met:
+  ~
+  ~ 1. Redistributions of source code must retain the above copyright notice, this list of conditions and the following disclaimer.
+  ~
+  ~ 2. Redistributions in binary form must reproduce the above copyright notice, this list of conditions and the following disclaimer in the
+  ~ documentation and/or other materials provided with the distribution.
+  ~
+  ~ 3. Neither the name of the copyright holder nor the names of its contributors may be used to endorse or promote products derived from this
+  ~ software without specific prior written permission.
+  ~
+  ~ THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+  ~ LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+  ~ HOLDER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+  ~ LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON
+  ~ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE
+  ~ USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+  -->
+
+<!-- GATT server configuration -->
+<server-configuration name="Sample configuration">
+
+	<!--
+		With the 'configure' attribute you may specify the predefined configuration of the service.
+		Possible values are (case-sensitive): 
+			- LINK_LOSS       - the Link Loss Service with predefined characteristic and functionality will be created
+			- IMMEDIATE_ALERT - the Immediate Alert Service
+			- CURRENT_TIME    - the Current Time Service
+			- HEART_RATE      - a sample Heart Rate Service
+		For those services 'name' and 'uuid' attributes, characteristics and other settings are predefined and will be ignored if set.
+
+		If the 'configure' attribute is set to an unsupported value the error will be triggered.
+
+		The 'enabled' attribute may be used to enable or disable the service. Disabled service will not be created in the GATT server configuration.
+		This attribute may be omitted and by default it is enabled.
+	-->
+	<service configure="HEART_RATE" />
+
+	<!-- A disabled service will not be instantiate on a GATT server. You may disable a service, characteristic or a descriptor. -->
+	<service name="Disabled service"  uuid="0000D15A-0000-1000-8000-AABBCCDDEEFF" enabled="false" />
+
+	<!-- 
+		A custom service may also be defined. If 'name' not set, the "Unknown Service" will be used. 
+
+		A custom service MUST have a UUID set. A constant MAY be used for that purpose. 
+		In the following tags the 'enabled' attribute could have been omitted.
+	-->
+	<service name="Test Service" uuid="0000AAA0-0000-1000-8000-AABBCCDDEEFF" enabled="true">
+
+		<!-- 
+			A custom service MAY have 0 or more characteristics.
+			Each characteristic MUST have the UUID set. A constant MAY be used for that purpose.
+			An initial value of the characteristic may be set using 'value' (bytes, e.g. 01-00-AB-01) or as string using 'value-string' attribute.
+
+			The 'id' attribute is currently not used and is ignored.
+			You may omit the 'enabled' attribute if its value is true. The same applies to the descriptor.
+		 -->
+		<characteristic id="some-id" name="Value" uuid="0000AAA1-0000-1000-8000-AABBCCDDEEFF" value="1E00" enabled="true">
+			<!-- 
+				A characteristic MUST have at least one property set.  
+				Property name is case-sensitive and must be one of the following: 
+						- BROADCAST
+						- READ
+						- WRITE
+						- WRITE_WITHOUT_RESPONSE
+						- NOTIFY
+						- INDICATE
+						- SIGNED_WRITE
+						- RELIABLE_WRITE
+						- WRITE_AUXILIARY
+				Note, that in case extended properties are required, the CEP descriptor will be added automatically. See below for more details.
+			-->
+			<property name="READ" />
+
+			<!-- When setting NOTIFY or INDICATE property the Client Characteristic Configuration descriptor (CCCD) will be added automatically (see below). -->
+			<property name="NOTIFY" />
+
+			<!-- 
+				In order to read or write a value a characteristic MUST have the permissions specified. With permissions you may restrict the characteristic value from
+				unauthorized read/write.
+				Permission name is case-sensitive and must be one of the following:
+						- READ
+						- READ_ENCRYPTED
+						- READ_ENCRYPTED_MITM
+						- WRITE
+						- WRITE_ENCRYPTED
+						- WRITE_ENCRYPTED_MITM
+						- WRITE_SIGNED
+						- WRITE_SIGNED_MITM
+
+				In our case we allow characteristic to be readable without any security.
+			-->
+			<permission name="READ" />
+
+			<!--
+				A characteristic MAY have a list of descriptors specified.
+				In case it has the NOTIFY or INDICATE property is MAY also have the CCCD descriptor. If not, this descriptor will be added automatically as the last one.
+				The Client Characteristic Configuration descriptor may be easily set and configured using the 'configure' attribute with the "CCCD" value.
+			-->
+			<descriptor configure="CCCD" />
+
+			<!--
+				In case the characteristics has extended properties the Characteristic Extended Properties descriptor will be added automatically at the end.
+				You may also add it manually to force its position. Here, as the characteristic does not have any extended properties, we leave it commented out.
+			-->
+			<!-- <descriptor configure="CEPD" /> -->
+
+			<!-- You may create your own descriptors... -->
+			<descriptor id="some-id-2" name="Custom Descriptor" uuid="0000AAB0-0000-1000-8000-AABBCCDDEEFF" value="01233456789A" enabled="true">
+				<!-- Our custom descriptor may be read or written. -->
+				<permission name="READ" />
+				<permission name="WRITE" />
+			</descriptor>
+
+			<!-- ...or use one of Bluetooth SIG adopted descriptors. Here's the example of Characteristic User Description descriptor. -->
+			<descriptor uuid="00002901-0000-1000-8000-00805f9b34fb" value-string="Important value">
+				<!-- We must explicitly allow the descriptor to be readable by setting the READ permission. This descriptor is read-only. -->
+				<permission name="READ" />
+			</descriptor>	
+
+			<!-- 
+				An example of Characteristic Presentation Format descriptor.
+				Link: https://developer.bluetooth.org/gatt/descriptors/Pages/DescriptorViewer.aspx?u=org.bluetooth.descriptor.gatt.characteristic_presentation_format.xml
+				Value:
+					0x06 - 16-bit integer
+					0x00 - exponent = 0
+					0x2701 - unit = length (metre) (https://developer.bluetooth.org/gatt/units/Pages/default.aspx)
+					0x01 - Bluetooth SIG Assigned Numbers
+					0x0100 - GATT Bluetooth Namespace Descriptors = front (https://developer.bluetooth.org/gatt/Pages/GattNamespaceDescriptors.aspx)
+				Values are written in Little Endian.
+			-->
+			<descriptor uuid="00002904-0000-1000-8000-00805f9b34fb" value="06000127010001">
+				<!-- According to spec this descriptor is read-only. -->
+				<permission name="READ" />
+			</descriptor>
+
+		</characteristic>
+
+		<!-- An example of a control point characteristic -->
+		<characteristic uuid="0000AAA2-0000-1000-8000-AABBCCDDEEFF" name="Value Control Point">
+			<property name="WRITE"/>
+			<property name="WRITE_WITHOUT_RESPONSE"/>
+			<property name="INDICATE"/>
+			<permission name="WRITE"/>
+			<descriptor configure="CCCD" />
+		</characteristic>
+	</service>
+
+	<!--
+		A Bluetooth SIG adopted service or characteristic may also be used.
+		In case of most of them providing a 'name' attribute is optional as the nRF Connect application will determine it from the UUID.
+		We may also skip the 'enabled' attribute as it is enabled by default.
+	-->
+	<service uuid="0000181C-0000-1000-8000-00805f9b34fb"> 
+		<characteristic uuid="00002A8A-0000-1000-8000-00805f9b34fb" value-string="Natenczas">
+			<!-- 
+				The First Name characteristic will have READ and WRITE properties and permissions. A connected device will be able to save and load a value.
+			-->
+			<property name="READ" />
+			<property name="WRITE" />
+			<permission name="READ" />
+			<permission name="WRITE" />
+		</characteristic>
+
+		<characteristic uuid="00002A90-0000-1000-8000-00805f9b34fb" value-string="Wojski">
+			<!--
+				The same with the Last Name characteristic.
+			-->
+			<property name="READ" />
+			<property name="WRITE" />
+			<permission name="READ" />
+			<permission name="WRITE" />
+		</characteristic>
+
+		<characteristic uuid="00002A8C-0000-1000-8000-00805f9b34fb" value="00">
+			<!--
+				and the Gender characteristic.
+			-->
+			<property name="READ" />
+			<property name="WRITE" />
+			<permission name="READ" />
+			<permission name="WRITE" />
+		</characteristic>
+	</service>
+</server-configuration>

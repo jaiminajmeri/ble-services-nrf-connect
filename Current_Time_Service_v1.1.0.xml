@@ -1,0 +1,25 @@
+<server-configuration name="CTS v1.1.0">
+	<service uuid="00001805-0000-1000-8000-00805f9b34fb" enabled="true">
+		<characteristic name="Current Time" uuid="00002A2B-0000-1000-8000-00805f9b34fb" value="00" enabled="true">
+			<property name="READ" />
+			<property name="WRITE" />
+			<property name="NOTIFY" />
+			<permission name="READ" />
+			<permission name="WRITE" />
+			<descriptor name="Client Characteristic Configuration Descriptor" uuid="00002902-0000-1000-8000-00805f9b34fb" value="00" enabled="true">
+				<permission name="READ" />
+				<permission name="WRITE" />
+			</descriptor>
+		</characteristic>
+		<characteristic name="Local Time Information" uuid="00002A0F-0000-1000-8000-00805f9b34fb" value="00" enabled="true">
+			<property name="READ" />
+			<property name="WRITE" />
+			<permission name="READ" />
+			<permission name="WRITE" />
+		</characteristic>
+		<characteristic name="Reference Time Information" uuid="00002A14-0000-1000-8000-00805f9b34fb" value="00" enabled="true">
+			<property name="READ" />
+			<permission name="READ" />
+		</characteristic>
+	</service>
+</server-configuration>
